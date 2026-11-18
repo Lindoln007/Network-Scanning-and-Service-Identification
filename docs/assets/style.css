@@ -123,9 +123,17 @@ img, svg { max-width: 100%; display: block; }
 }
 .repo-link:hover { background: var(--ink); color: var(--paper); }
 .repo-link svg { width: 16px; height: 16px; }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .site-head .wrap { flex-wrap: wrap; gap: 0 var(--space-md); padding-block: 8px; }
-  .nav { order: 3; width: 100%; overflow-x: auto; margin-inline: -12px; }
+  .site-head nav { order: 3; width: 100%; }
+  .nav { overflow-x: auto; margin-inline: -12px; scrollbar-width: none; }
+}
+@media (max-width: 480px) {
+  .nav a { padding-inline: 8px; }
+  .nav a .n { display: none; }
+  .nav a::after { left: 8px; right: 8px; }
+}
+@media (max-width: 760px) {
   .repo-link span { display: none; }
 }
 

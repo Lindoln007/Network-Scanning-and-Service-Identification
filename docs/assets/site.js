@@ -31,32 +31,57 @@
     });
   });
 
-  /* ---------- Scroll reveals ---------- */
+  /* ---------- Scroll direction helpers ----------
+     Animations play when an element enters the viewport and reverse when it
+     leaves through the BOTTOM edge (i.e. the reader scrolled back up past it).
+     Leaving through the top (scrolling down past it) keeps the finished state. */
+  const leftBelow = e => !e.isIntersecting && e.boundingClientRect.top > innerHeight * 0.5;
+
+  /* ---------- Scroll reveals (reversible) ---------- */
   const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    entries.forEach(e => {
+      const el = e.target;
+      if (e.isIntersecting) {
+        if (el.dataset.dIn) el.style.setProperty("--d", el.dataset.dIn);
+        el.classList.add("in");
+      } else if (leftBelow(e) && !reduce) {
+        if (el.dataset.dOut) el.style.setProperty("--d", el.dataset.dOut);
+        el.classList.remove("in");
+      }
+    });
   }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
   $$("[data-reveal]").forEach(el => io.observe(el));
   $$("[data-stagger]").forEach(group => {
-    [...group.children].forEach((c, i) => { c.setAttribute("data-reveal", ""); c.style.setProperty("--d", i * 80 + "ms"); io.observe(c); });
+    const kids = [...group.children], n = kids.length;
+    kids.forEach((c, i) => {
+      c.setAttribute("data-reveal", "");
+      c.dataset.dIn = i * 80 + "ms";             // forward: first to last
+      c.dataset.dOut = (n - 1 - i) * 50 + "ms";  // reverse: last to first
+      c.style.setProperty("--d", c.dataset.dIn);
+      io.observe(c);
+    });
   });
 
-  /* ---------- Count-up numbers ---------- */
+  /* ---------- Count-up numbers (count back down on scroll up) ---------- */
+  const countTo = (el, target, dur) => {
+    cancelAnimationFrame(el._raf);
+    const from = +el.textContent || 0, t0 = performance.now();
+    const tick = t => {
+      const k = Math.min(1, (t - t0) / dur), eased = 1 - Math.pow(1 - k, 4);
+      el.textContent = Math.round(from + (target - from) * eased);
+      if (k < 1) el._raf = requestAnimationFrame(tick);
+    };
+    el._raf = requestAnimationFrame(tick);
+  };
   const countIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      countIO.unobserve(e.target);
       const el = e.target, end = +el.dataset.count;
       if (reduce) { el.textContent = end; return; }
-      const t0 = performance.now(), dur = 1200;
-      const tick = t => {
-        const k = Math.min(1, (t - t0) / dur), eased = 1 - Math.pow(1 - k, 4);
-        el.textContent = Math.round(end * eased);
-        if (k < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
+      if (e.isIntersecting) countTo(el, end, 1200);
+      else if (leftBelow(e)) countTo(el, 0, 600);
     });
   }, { threshold: 0.6 });
-  $$("[data-count]").forEach(el => countIO.observe(el));
+  $$("[data-count]").forEach(el => { if (!reduce) el.textContent = "0"; countIO.observe(el); });
 
   /* ---------- Network map: replays the real scan ---------- */
   const map = $("#netmap");
@@ -134,7 +159,7 @@
 
     const play = async () => {
       const id = ++run;
-      ports.forEach(p => p.el.classList.remove("lit"));
+      ports.forEach(p => { p.el.getAnimations().forEach(a => a.cancel()); p.el.classList.remove("lit"); });
       if (reduce) { ports.forEach(p => p.el.classList.add("lit")); say("Scan complete · 3 hosts · 13 open ports"); return; }
       say("Host discovery · 127.0.10.1–50");
       await sleep(600);
@@ -154,30 +179,71 @@
       say(`Scan complete · 3 hosts · ${open} open ports`);
     };
 
-    const mapIO = new IntersectionObserver(es => { if (es[0].isIntersecting) { mapIO.disconnect(); play(); } }, { threshold: 0.35 });
+    // Reverse: retract the ports last-to-first and reset the status line.
+    const retract = () => {
+      run++;
+      const lit = ports.filter(p => p.el.classList.contains("lit")).reverse();
+      lit.forEach((p, i) => {
+        const a = p.el.animate(
+          [{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(.4)" }],
+          { duration: 320, delay: i * 35, easing: "cubic-bezier(.7,0,.84,0)", fill: "forwards" }
+        );
+        a.onfinish = () => { p.el.classList.remove("lit"); a.cancel(); };
+      });
+      say("Waiting to scan");
+    };
+
+    // Play when the map comes into view, reverse when it leaves, replay on return.
+    let shown = false;
+    const mapIO = new IntersectionObserver(es => {
+      const e = es[0];
+      if (e.isIntersecting && !shown) { shown = true; play(); }
+      else if (!e.isIntersecting && shown && !reduce) { shown = false; retract(); }
+    }, { threshold: 0.35 });
     mapIO.observe(map);
     $("#netmap-replay")?.addEventListener("click", play);
   }
 
-  /* ---------- Terminal typing ---------- */
+  /* ---------- Terminal typing (un-types on scroll up) ---------- */
+  const termType = term => {
+    const cmd = $(".cmd", term), id = ++term._run;
+    const cur = $(".cursor", term) || Object.assign(document.createElement("span"), { className: "cursor" });
+    cmd.after(cur);
+    let i = cmd.textContent.length;
+    const step = () => {
+      if (id !== term._run) return;
+      i = Math.min(term._full.length, i + 2); cmd.textContent = term._full.slice(0, i);
+      if (i < term._full.length) setTimeout(step, 16);
+      else setTimeout(() => { if (id === term._run) { cur.remove(); term.classList.add("done"); } }, 350);
+    };
+    step();
+  };
+  const termUntype = term => {
+    const cmd = $(".cmd", term), id = ++term._run;
+    term.classList.remove("done");                         // output folds back up
+    const cur = $(".cursor", term) || Object.assign(document.createElement("span"), { className: "cursor" });
+    cmd.after(cur);
+    let i = cmd.textContent.length;
+    const step = () => {
+      if (id !== term._run) return;
+      i = Math.max(0, i - 3); cmd.textContent = term._full.slice(0, i);
+      if (i > 0) setTimeout(step, 10);
+    };
+    setTimeout(step, 250);
+  };
   const termIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      termIO.unobserve(e.target);
-      const term = e.target, cmd = $(".cmd", term);
-      if (!cmd || reduce) { term.classList.add("done"); return; }
-      const full = cmd.textContent; cmd.textContent = "";
-      const cur = document.createElement("span"); cur.className = "cursor"; cmd.after(cur);
-      let i = 0;
-      const step = () => {
-        i += 2; cmd.textContent = full.slice(0, i);
-        if (i < full.length) setTimeout(step, 16);
-        else setTimeout(() => { cur.remove(); term.classList.add("done"); }, 350);
-      };
-      step();
+      const term = e.target;
+      if (e.isIntersecting) termType(term);
+      else if (leftBelow(e)) termUntype(term);
     });
   }, { threshold: 0.4 });
-  $$(".term[data-type]").forEach(t => termIO.observe(t));
+  $$(".term[data-type]").forEach(t => {
+    const cmd = $(".cmd", t);
+    if (!cmd || reduce) { t.classList.add("done"); return; }
+    t._full = cmd.textContent; t._run = 0; cmd.textContent = "";
+    termIO.observe(t);
+  });
 
   /* ---------- Timeline progress line ---------- */
   const phases = $(".phases");
