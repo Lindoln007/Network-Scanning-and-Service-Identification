@@ -31,26 +31,32 @@
     });
   });
 
-  /* ---------- Scroll direction helpers ----------
-     Animations play when an element enters the viewport and reverse when it
-     leaves through the BOTTOM edge (i.e. the reader scrolled back up past it).
-     Leaving through the top (scrolling down past it) keeps the finished state. */
-  const leftBelow = e => !e.isIntersecting && e.boundingClientRect.top > innerHeight * 0.5;
+  /* ---------- Scroll trigger line ----------
+     A line sits 85% of the way down the viewport. When an element's top rises
+     above it (scrolling down) its animation plays; when the top drops back
+     below it (scrolling up) the animation reverses — while the element is
+     still on screen, so the reverse is actually visible. */
+  const TRIGGER = 0.8;
+  const triggers = [];
+  const watch = (el, onIn, onOut) => triggers.push({ el, onIn, onOut, on: null });
+  let ticking = false;
+  const checkTriggers = () => {
+    ticking = false;
+    const line = innerHeight * TRIGGER;
+    for (const t of triggers) {
+      const r = t.el.getBoundingClientRect();
+      if (!r.height && !r.width) continue;          // hidden (e.g. filtered out)
+      const on = r.top < line;
+      if (on !== t.on) { t.on = on; (on ? t.onIn : t.onOut)(); }
+    }
+  };
+  const requestCheck = () => { if (!ticking) { ticking = true; requestAnimationFrame(checkTriggers); } };
 
   /* ---------- Scroll reveals (reversible) ---------- */
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const el = e.target;
-      if (e.isIntersecting) {
-        if (el.dataset.dIn) el.style.setProperty("--d", el.dataset.dIn);
-        el.classList.add("in");
-      } else if (leftBelow(e) && !reduce) {
-        if (el.dataset.dOut) el.style.setProperty("--d", el.dataset.dOut);
-        el.classList.remove("in");
-      }
-    });
-  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
-  $$("[data-reveal]").forEach(el => io.observe(el));
+  const reveal = el => watch(el,
+    () => { if (el.dataset.dIn) el.style.setProperty("--d", el.dataset.dIn); el.classList.add("in"); },
+    () => { if (reduce) return; if (el.dataset.dOut) el.style.setProperty("--d", el.dataset.dOut); el.classList.remove("in"); }
+  );
   $$("[data-stagger]").forEach(group => {
     const kids = [...group.children], n = kids.length;
     kids.forEach((c, i) => {
@@ -58,9 +64,9 @@
       c.dataset.dIn = i * 80 + "ms";             // forward: first to last
       c.dataset.dOut = (n - 1 - i) * 50 + "ms";  // reverse: last to first
       c.style.setProperty("--d", c.dataset.dIn);
-      io.observe(c);
     });
   });
+  $$("[data-reveal]").forEach(reveal);
 
   /* ---------- Count-up numbers (count back down on scroll up) ---------- */
   const countTo = (el, target, dur) => {
@@ -73,15 +79,12 @@
     };
     el._raf = requestAnimationFrame(tick);
   };
-  const countIO = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const el = e.target, end = +el.dataset.count;
-      if (reduce) { el.textContent = end; return; }
-      if (e.isIntersecting) countTo(el, end, 1200);
-      else if (leftBelow(e)) countTo(el, 0, 600);
-    });
-  }, { threshold: 0.6 });
-  $$("[data-count]").forEach(el => { if (!reduce) el.textContent = "0"; countIO.observe(el); });
+  $$("[data-count]").forEach(el => {
+    const end = +el.dataset.count;
+    if (reduce) { el.textContent = end; return; }
+    el.textContent = "0";
+    watch(el, () => countTo(el, end, 1200), () => countTo(el, 0, 700));
+  });
 
   /* ---------- Network map: replays the real scan ---------- */
   const map = $("#netmap");
@@ -231,19 +234,18 @@
     };
     setTimeout(step, 250);
   };
-  const termIO = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const term = e.target;
-      if (e.isIntersecting) termType(term);
-      else if (leftBelow(e)) termUntype(term);
-    });
-  }, { threshold: 0.4 });
   $$(".term[data-type]").forEach(t => {
     const cmd = $(".cmd", t);
     if (!cmd || reduce) { t.classList.add("done"); return; }
     t._full = cmd.textContent; t._run = 0; cmd.textContent = "";
-    termIO.observe(t);
+    watch(t, () => termType(t), () => termUntype(t));
   });
+
+  addEventListener("scroll", requestCheck, { passive: true });
+  addEventListener("resize", requestCheck);
+  // after fonts load the layout shifts, so check again
+  document.fonts?.ready.then(requestCheck);
+  checkTriggers();
 
   /* ---------- Timeline progress line ---------- */
   const phases = $(".phases");
