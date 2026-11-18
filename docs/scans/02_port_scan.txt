@@ -1,0 +1,30 @@
+# Nmap 7.80 scan initiated Wed Nov 18 19:14:18 2026 as: "C:\\Program Files (x86)\\Nmap\\nmap.exe" -sT -Pn -T5 -p 1-1024,3306,8080 -oN scans/02_port_scan.txt -oX scans/02_port_scan.xml 127.0.10.10,20,30
+Nmap scan report for 127.0.10.10
+Host is up (0.0018s latency).
+Not shown: 1022 filtered ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+135/tcp open  msrpc
+445/tcp open  microsoft-ds
+
+Nmap scan report for 127.0.10.20
+Host is up (0.0013s latency).
+Not shown: 1021 filtered ports
+PORT    STATE SERVICE
+21/tcp  open  ftp
+23/tcp  open  telnet
+25/tcp  open  smtp
+135/tcp open  msrpc
+445/tcp open  microsoft-ds
+
+Nmap scan report for 127.0.10.30
+Host is up (0.0011s latency).
+Not shown: 1022 filtered ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+135/tcp  open  msrpc
+445/tcp  open  microsoft-ds
+8080/tcp open  http-proxy
+
+# Nmap done at Wed Nov 18 19:15:36 2026 -- 3 IP addresses (3 hosts up) scanned in 78.03 seconds

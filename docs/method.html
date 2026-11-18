@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab &amp; Method · Network Scanning &amp; Service Identification</title>
+  <meta name="description" content="How the isolated lab network was built and scanned with Nmap: host discovery, port scanning, service and version detection.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23c2412b' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23c2412b'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="mark" href="index.html" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle class="pulse" cx="12" cy="12" r="10" fill="none" stroke="var(--signal)" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="var(--signal)"/></svg>
+      Net&nbsp;Survey
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="index.html"><span class="n">01</span>Overview</a></li>
+        <li><a href="method.html" aria-current="page"><span class="n">02</span>Lab &amp; Method</a></li>
+        <li><a href="findings.html"><span class="n">03</span>Findings</a></li>
+      </ul>
+    </nav>
+    <a class="repo-link" data-repo="" href="#">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.6 7.6 0 0 1 8 3.87c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span>Repository</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <header class="wrap page-hero load">
+    <span class="eyebrow">Page 02 · Lab &amp; Method</span>
+    <h1 class="split-words">Build a network that can't <em>escape</em>, then survey it.</h1>
+    <p class="lede">Four steps, each one a real command with its real output. The terminals below replay what was run on 18 November 2026.</p>
+  </header>
+
+  <section style="padding-top: var(--space-xl)">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 01 Topology</span>
+        <h2>The lab network</h2>
+        <p class="measure" style="margin:0;color:var(--ink-2)">One Python script, <code>lab/lab_services.py</code>, starts three hosts on the loopback range. Loopback traffic never leaves the computer, so the lab is isolated by design: no VMs and no risk to any real network.</p>
+      </div>
+      <div class="hosts" data-stagger>
+        <article class="host">
+          <span class="ip">127.0.10.10</span>
+          <h3>Web server</h3>
+          <ul>
+            <li><span>22/tcp</span><span>OpenSSH 7.4</span></li>
+            <li><span>80/tcp</span><span>Apache 2.4.29</span></li>
+          </ul>
+        </article>
+        <article class="host">
+          <span class="ip">127.0.10.20</span>
+          <h3>Legacy file &amp; mail</h3>
+          <ul>
+            <li><span>21/tcp</span><span>vsftpd 2.3.4</span></li>
+            <li><span>23/tcp</span><span>Telnet</span></li>
+            <li><span>25/tcp</span><span>Postfix SMTP</span></li>
+          </ul>
+        </article>
+        <article class="host">
+          <span class="ip">127.0.10.30</span>
+          <h3>Admin workstation</h3>
+          <ul>
+            <li><span>22/tcp</span><span>OpenSSH 8.9p1</span></li>
+            <li><span>8080/tcp</span><span>Apache admin panel</span></li>
+          </ul>
+        </article>
+      </div>
+      <div class="note" style="margin-top: var(--space-xl)" data-reveal>
+        <span class="glyph" aria-hidden="true">i</span>
+        <div>
+          <p><strong>How the lab services work.</strong> Each lab service answers connections with the banner the real software sends (for example <code>220 (vsFTPd 2.3.4)</code>), and the web servers answer real HTTP requests. Nmap's version detection reads these banners, the same way it fingerprints a production server. The software versions are emulated, but the scan, the traffic and the results are all real.</p>
+          <p>The scans also found <strong>ports 135 and 445 (Windows RPC and SMB)</strong> on every lab address. These belong to the Windows host itself, which listens on all interfaces. It is a real finding, covered on the next page.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 02 Procedure</span>
+        <h2>Four phases</h2>
+      </div>
+
+      <div class="phases">
+        <span class="progress" aria-hidden="true"></span>
+
+        <div class="phase">
+          <div class="copy" data-reveal>
+            <h3>Start the lab</h3>
+            <p>Launch the three hosts and their seven services. The script binds each service to its own loopback address and port.</p>
+          </div>
+          <div class="term" data-type data-reveal>
+            <div class="term-bar"><i></i><i></i><i></i><span class="t">lab_services.py</span><a data-repo="/blob/main/lab/lab_services.py" href="#">source ↗</a></div>
+<pre><span class="cmd">python lab\lab_services.py</span>
+<span class="out">Starting lab services:
+  127.0.10.10:22    ssh
+  127.0.10.10:80    http
+  127.0.10.20:21    ftp
+  127.0.10.20:23    telnet
+  127.0.10.20:25    smtp
+  127.0.10.30:22    ssh
+  127.0.10.30:8080  http-admin
+<span class="open">Lab running. Press Ctrl+C to stop.</span></span></pre>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="copy" data-reveal>
+            <h3>Host discovery</h3>
+            <p>Sweep 50 addresses for a handful of common ports. On loopback every address "answers a ping", so <code>-Pn</code> with <code>--open</code> is used instead: a host counts as live only if it has an open port.</p>
+            <p><strong>Result:</strong> 3 live hosts. The quick sweep missed some ports (21 and 8080), which is why the full port scan in phase 3 matters.</p>
+          </div>
+          <div class="term" data-type data-reveal>
+            <div class="term-bar"><i></i><i></i><i></i><span class="t">01_host_discovery.txt</span><a href="scans/01_host_discovery.txt">raw ↗</a></div>
+<pre><span class="cmd">nmap -sT -Pn -p 21-25,80,8080 --open 127.0.10.1-50</span>
+<span class="out">Nmap scan report for <span class="hot">127.0.10.10</span>
+PORT   STATE SERVICE
+22/tcp <span class="open">open</span>  ssh
+80/tcp <span class="open">open</span>  http
+
+Nmap scan report for <span class="hot">127.0.10.20</span>
+23/tcp <span class="open">open</span>  telnet
+25/tcp <span class="open">open</span>  smtp
+
+Nmap scan report for <span class="hot">127.0.10.30</span>
+22/tcp <span class="open">open</span>  ssh
+
+<span class="dim"># Nmap done -- 50 IP addresses scanned in 20.44 seconds</span></span></pre>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="copy" data-reveal>
+            <h3>Port scan</h3>
+            <p>A full TCP connect scan of ports 1–1024 plus 3306 and 8080 on each live host. <code>-sT</code> completes the TCP handshake, so it needs no raw-packet privileges. <code>-T5</code> keeps it fast on a local link.</p>
+            <p>Closed ports show as <em>filtered</em> because Windows drops, rather than resets, connections to unused loopback ports.</p>
+          </div>
+          <div class="term" data-type data-reveal>
+            <div class="term-bar"><i></i><i></i><i></i><span class="t">02_port_scan.txt</span><a href="scans/02_port_scan.txt">raw ↗</a></div>
+<pre><span class="cmd">nmap -sT -Pn -T5 -p 1-1024,3306,8080 127.0.10.10,20,30</span>
+<span class="out">Nmap scan report for 127.0.10.10
+22/tcp  <span class="open">open</span>  ssh
+80/tcp  <span class="open">open</span>  http
+135/tcp <span class="open">open</span>  msrpc
+445/tcp <span class="open">open</span>  microsoft-ds
+
+Nmap scan report for 127.0.10.20
+<span class="hot">21/tcp  open  ftp</span>
+<span class="hot">23/tcp  open  telnet</span>
+25/tcp  <span class="open">open</span>  smtp
+135/tcp <span class="open">open</span>  msrpc
+445/tcp <span class="open">open</span>  microsoft-ds
+
+Nmap scan report for 127.0.10.30
+22/tcp   <span class="open">open</span>  ssh
+135/tcp  <span class="open">open</span>  msrpc
+445/tcp  <span class="open">open</span>  microsoft-ds
+8080/tcp <span class="open">open</span>  http-proxy
+
+<span class="dim"># 3 IP addresses (3 hosts up) scanned in 78.03 seconds</span></span></pre>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="copy" data-reveal>
+            <h3>Service &amp; version detection</h3>
+            <p><code>-sV</code> probes each open port and matches the replies against Nmap's database of service fingerprints. <code>-sC</code> runs the default NSE scripts, which collected HTTP headers, page titles and SMB security mode.</p>
+            <p>This step turns "port 21 is open" into "vsftpd 2.3.4 is running", and that is where the risk becomes visible.</p>
+          </div>
+          <div class="term" data-type data-reveal>
+            <div class="term-bar"><i></i><i></i><i></i><span class="t">03_service_detection.txt</span><a href="scans/03_service_detection.txt">raw ↗</a></div>
+<pre><span class="cmd">nmap -sT -Pn -sV -sC -p 21,22,23,25,80,135,445,8080 127.0.10.10,20,30</span>
+<span class="out">127.0.10.10
+22/tcp   open  ssh     OpenSSH 7.4 (protocol 2.0)
+80/tcp   open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+445/tcp  open  microsoft-ds?
+| smb2-security-mode: Message signing enabled and required
+
+127.0.10.20
+<span class="hot">21/tcp   open  ftp     vsftpd 2.3.4</span>
+<span class="hot">23/tcp   open  telnet  Linux telnetd</span>
+25/tcp   open  smtp    Postfix smtpd
+Service Info: Host: mail.lab.local
+
+127.0.10.30
+22/tcp   open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.1
+8080/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-open-proxy: Proxy might be redirecting requests
+
+<span class="dim"># 3 IP addresses (3 hosts up) scanned in 36.28 seconds</span></span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="wrap split">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 03 Reference</span>
+        <h2>Flags used</h2>
+      </div>
+      <dl class="facts" data-reveal style="font-size: var(--step-0); gap: 14px 28px">
+        <dt>-sT</dt><dd style="font-weight:400">TCP connect scan: completes the full handshake and needs no admin rights</dd>
+        <dt>-Pn</dt><dd style="font-weight:400">Skip ping discovery and treat every target as up</dd>
+        <dt>--open</dt><dd style="font-weight:400">Show only hosts and ports that are open</dd>
+        <dt>-p</dt><dd style="font-weight:400">Choose which ports to scan</dd>
+        <dt>-T5</dt><dd style="font-weight:400">Fastest timing template, safe on a local link</dd>
+        <dt>-sV</dt><dd style="font-weight:400">Probe services to work out the software and version</dd>
+        <dt>-sC</dt><dd style="font-weight:400">Run the default, safe NSE scripts</dd>
+        <dt>-oN / -oX</dt><dd style="font-weight:400">Save normal and XML output as evidence</dd>
+      </dl>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <a class="next-page" href="findings.html">
+      <span><span class="k">Next · 03</span><br><span class="big">Findings</span></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Asante Mbaya · 23311351002 · 351 CP 81</span>
+    <span>Source code, raw scans &amp; documentation: <a data-repo="" href="#">GitHub repository</a></span>
+  </div>
+</footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

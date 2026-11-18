@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network Scanning &amp; Service Identification · Asante Mbaya</title>
+  <meta name="description" content="Nmap scan of an isolated lab network: active hosts, open ports, running services and security recommendations. 351 CP 81 Project 2.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23c2412b' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23c2412b'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="mark" href="index.html" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle class="pulse" cx="12" cy="12" r="10" fill="none" stroke="var(--signal)" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="var(--signal)"/></svg>
+      Net&nbsp;Survey
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="index.html" aria-current="page"><span class="n">01</span>Overview</a></li>
+        <li><a href="method.html"><span class="n">02</span>Lab &amp; Method</a></li>
+        <li><a href="findings.html"><span class="n">03</span>Findings</a></li>
+      </ul>
+    </nav>
+    <a class="repo-link" data-repo="" href="#">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.6 7.6 0 0 1 8 3.87c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span>Repository</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy load">
+        <span class="eyebrow">351 CP 81 · Project 02 · Comprehension review</span>
+        <h1 class="split-words">Three hosts. Thirteen open doors. <em>Two</em> left wide open.</h1>
+        <p class="lede">An Nmap survey of an isolated lab network to find its live hosts, open ports and the services behind them, then decide what to close first.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="findings.html">Read the findings <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="Network_Scanning_Report.pdf" download>Report (PDF) <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <figure class="netmap" id="netmap" style="margin:0">
+        <figcaption class="netmap-caption">
+          <span class="live" id="netmap-status" aria-live="polite">Waiting to scan</span>
+          <button class="replay" id="netmap-replay" type="button">↻ Replay scan</button>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="ledger" data-stagger>
+      <div><span class="num" data-count="3">3</span><span class="lbl">Live hosts found</span></div>
+      <div><span class="num" data-count="13">13</span><span class="lbl">Open TCP ports</span></div>
+      <div><span class="num" data-count="7">7</span><span class="lbl">Service types identified</span></div>
+      <div><span class="num risk" data-count="2">2</span><span class="lbl">High-risk exposures</span></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap split">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 01 Brief</span>
+        <h2>The task</h2>
+      </div>
+      <div style="display:grid; gap: var(--space-xl)">
+        <div class="measure" data-reveal>
+          <p style="margin-top:0">The brief: <strong>use Nmap to scan an isolated laboratory network and identify active hosts, open ports and running services</strong>, then report the services found with security recommendations.</p>
+          <p>The lab runs entirely inside one computer on the private loopback range <code>127.0.10.0/24</code>, so no packet ever reaches a real network. Three machines were set up to look like a typical small office: a web server, an old file and mail server, and an admin workstation. Each one runs the services, and announces the software versions, you would expect to find on that kind of machine.</p>
+        </div>
+        <dl class="facts" data-reveal>
+          <dt>Student</dt><dd>Asante Mbaya · 23311351002</dd>
+          <dt>Course</dt><dd>351 CP 81 · Project 02</dd>
+          <dt>Tool</dt><dd>Nmap 7.80 (Windows)</dd>
+          <dt>Target</dt><dd>127.0.10.0/24 (isolated loopback lab)</dd>
+          <dt>Scan date</dt><dd>18 November 2026</dd>
+          <dt>Scan types</dt><dd>TCP connect, version detection, default NSE scripts</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 02 Headline</span>
+        <h2>What needs fixing first</h2>
+      </div>
+      <ol class="recs" data-stagger>
+        <li><div><strong>Remove vsftpd 2.3.4 on 127.0.10.20:21</strong><span class="why">This exact version shipped with a backdoor (CVE-2011-2523) that gives a root shell. Replace it with SFTP.</span></div><span class="sev sev-high">High</span></li>
+        <li><div><strong>Disable Telnet on 127.0.10.20:23</strong><span class="why">Logins and passwords cross the network in plain text. Use SSH.</span></div><span class="sev sev-high">High</span></li>
+        <li><div><strong>Patch outdated OpenSSH 7.4 and Apache 2.4.29</strong><span class="why">Both are years old with published CVEs, and Apache announces its exact version to anyone who asks.</span></div><span class="sev sev-medium">Medium</span></li>
+        <li><div><strong>Lock the admin panel on :8080 and SMB on :445 behind the firewall</strong><span class="why">Management services should only be reachable from an admin network or VPN.</span></div><span class="sev sev-medium">Medium</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <nav class="routes" aria-label="Report pages">
+        <a class="route" href="method.html" data-reveal>
+          <span class="go">02 →</span>
+          <h3>Lab &amp; Method</h3>
+          <p>How the isolated lab was built, the three scan phases, and the exact Nmap commands with their raw output.</p>
+        </a>
+        <a class="route" href="findings.html" data-reveal style="--d:100ms">
+          <span class="go">03 →</span>
+          <h3>Findings &amp; Recommendations</h3>
+          <p>A port-by-host matrix, eight findings rated by risk with evidence, and the remediation plan.</p>
+        </a>
+      </nav>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Asante Mbaya · 23311351002 · 351 CP 81</span>
+    <span>Source code, raw scans &amp; documentation: <a data-repo="" href="#">GitHub repository</a></span>
+  </div>
+</footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

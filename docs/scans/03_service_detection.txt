@@ -1,0 +1,81 @@
+# Nmap 7.80 scan initiated Wed Nov 18 19:15:44 2026 as: "C:\\Program Files (x86)\\Nmap\\nmap.exe" -sT -Pn -sV -sC -p 21,22,23,25,80,135,445,8080 -oN scans/03_service_detection.txt -oX scans/03_service_detection.xml 127.0.10.10,20,30
+Nmap scan report for 127.0.10.10
+Host is up (0.00025s latency).
+
+PORT     STATE    SERVICE       VERSION
+21/tcp   filtered ftp
+22/tcp   open     ssh           OpenSSH 7.4 (protocol 2.0)
+23/tcp   filtered telnet
+25/tcp   filtered smtp
+80/tcp   open     http          Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Lab Server
+135/tcp  open     msrpc         Microsoft Windows RPC
+445/tcp  open     microsoft-ds?
+8080/tcp filtered http-proxy
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2026-11-18T17:15:57
+|_  start_date: N/A
+
+Nmap scan report for 127.0.10.20
+Host is up (0.00047s latency).
+
+PORT     STATE    SERVICE       VERSION
+21/tcp   open     ftp           vsftpd 2.3.4
+22/tcp   filtered ssh
+23/tcp   open     telnet        Linux telnetd
+25/tcp   open     smtp          Postfix smtpd
+|_smtp-commands: SMTP EHLO nmap.scanme.org: failed to receive data: connection closed
+80/tcp   filtered http
+135/tcp  open     msrpc         Microsoft Windows RPC
+445/tcp  open     microsoft-ds?
+8080/tcp filtered http-proxy
+Service Info: Host:  mail.lab.local; OSs: Unix, Linux, Windows; CPE: cpe:/o:linux:linux_kernel, cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2026-11-18T17:16:06
+|_  start_date: N/A
+
+Nmap scan report for 127.0.10.30
+Host is up (0.000095s latency).
+
+PORT     STATE    SERVICE       VERSION
+21/tcp   filtered ftp
+22/tcp   open     ssh           OpenSSH 8.9p1 Ubuntu 3ubuntu0.1 (Ubuntu Linux; protocol 2.0)
+23/tcp   filtered telnet
+25/tcp   filtered smtp
+80/tcp   filtered http
+135/tcp  open     msrpc         Microsoft Windows RPC
+445/tcp  open     microsoft-ds?
+8080/tcp open     http          Apache httpd 2.4.29 ((Ubuntu))
+|_http-open-proxy: Proxy might be redirecting requests
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Lab Server
+Service Info: OSs: Linux, Windows; CPE: cpe:/o:linux:linux_kernel, cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2026-11-18T17:16:07
+|_  start_date: N/A
+
+Post-scan script results:
+| clock-skew: 
+|   0s: 
+|     127.0.10.20
+|     127.0.10.30
+|_    127.0.10.10
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Nov 18 19:16:20 2026 -- 3 IP addresses (3 hosts up) scanned in 36.28 seconds

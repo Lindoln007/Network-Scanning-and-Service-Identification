@@ -1,0 +1,25 @@
+# Nmap 7.80 scan initiated Wed Nov 18 19:03:56 2026 as: "C:\\Program Files (x86)\\Nmap\\nmap.exe" -sT -Pn -p 21-25,80,8080 --open -oN scans/01_host_discovery.txt 127.0.10.1-50
+Nmap scan report for 127.0.10.10
+Host is up (0.0018s latency).
+Not shown: 5 filtered ports
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap scan report for 127.0.10.20
+Host is up (0.0018s latency).
+Not shown: 5 filtered ports
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE
+23/tcp open  telnet
+25/tcp open  smtp
+
+Nmap scan report for 127.0.10.30
+Host is up (0.00s latency).
+Not shown: 6 filtered ports
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+# Nmap done at Wed Nov 18 19:04:16 2026 -- 50 IP addresses (50 hosts up) scanned in 20.44 seconds

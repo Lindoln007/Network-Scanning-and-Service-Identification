@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Findings · Network Scanning &amp; Service Identification</title>
+  <meta name="description" content="Identified services, risk-rated findings with evidence, and security recommendations from the Nmap lab scan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23c2412b' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23c2412b'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="mark" href="index.html" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle class="pulse" cx="12" cy="12" r="10" fill="none" stroke="var(--signal)" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="var(--signal)"/></svg>
+      Net&nbsp;Survey
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="index.html"><span class="n">01</span>Overview</a></li>
+        <li><a href="method.html"><span class="n">02</span>Lab &amp; Method</a></li>
+        <li><a href="findings.html" aria-current="page"><span class="n">03</span>Findings</a></li>
+      </ul>
+    </nav>
+    <a class="repo-link" data-repo="" href="#">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.6 7.6 0 0 1 8 3.87c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span>Repository</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <header class="wrap page-hero load">
+    <span class="eyebrow">Page 03 · Findings &amp; Recommendations</span>
+    <h1 class="split-words">Every open port is a <em>decision</em>. Eight of them need one.</h1>
+    <p class="lede">Services identified on each host, rated by risk, with the scan evidence behind each rating and what to do about it.</p>
+  </header>
+
+  <section style="padding-top: var(--space-xl)">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 01 Exposure map</span>
+        <h2>Ports by host</h2>
+        <p class="measure" style="margin:0;color:var(--ink-2)">Select any open port to jump to its finding.</p>
+      </div>
+      <div class="matrix-scroll" data-reveal>
+        <table class="matrix">
+          <caption class="sr-only" style="position:absolute;left:-9999px">Open ports on each lab host</caption>
+          <thead>
+            <tr>
+              <th scope="col" style="text-align:left">Host</th>
+              <th scope="col">21<small>ftp</small></th>
+              <th scope="col">22<small>ssh</small></th>
+              <th scope="col">23<small>telnet</small></th>
+              <th scope="col">25<small>smtp</small></th>
+              <th scope="col">80<small>http</small></th>
+              <th scope="col">135<small>msrpc</small></th>
+              <th scope="col">445<small>smb</small></th>
+              <th scope="col">8080<small>http</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Web server<small>127.0.10.10</small></th>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o m" data-goto="f-03" aria-label="22 open: OpenSSH 7.4, see F-03" style="border:0;cursor:pointer">22</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o m" data-goto="f-04" aria-label="80 open: Apache 2.4.29, see F-04" style="border:0;cursor:pointer">80</button></td>
+              <td><button class="cell o" data-goto="f-06" aria-label="135 open: Windows RPC, see F-06" style="border:0;cursor:pointer">135</button></td>
+              <td><button class="cell o m" data-goto="f-06" aria-label="445 open: SMB, see F-06" style="border:0;cursor:pointer">445</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Legacy file &amp; mail<small>127.0.10.20</small></th>
+              <td><button class="cell o r" data-goto="f-01" aria-label="21 open: vsftpd 2.3.4, see F-01" style="border:0;cursor:pointer">21</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o r" data-goto="f-02" aria-label="23 open: Telnet, see F-02" style="border:0;cursor:pointer">23</button></td>
+              <td><button class="cell o" data-goto="f-07" aria-label="25 open: Postfix SMTP, see F-07" style="border:0;cursor:pointer">25</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o" data-goto="f-06" aria-label="135 open: Windows RPC, see F-06" style="border:0;cursor:pointer">135</button></td>
+              <td><button class="cell o m" data-goto="f-06" aria-label="445 open: SMB, see F-06" style="border:0;cursor:pointer">445</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Admin workstation<small>127.0.10.30</small></th>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o" data-goto="f-08" aria-label="22 open: OpenSSH 8.9p1, see F-08" style="border:0;cursor:pointer">22</button></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><span class="cell f" aria-label="filtered">·</span></td>
+              <td><button class="cell o" data-goto="f-06" aria-label="135 open: Windows RPC, see F-06" style="border:0;cursor:pointer">135</button></td>
+              <td><button class="cell o m" data-goto="f-06" aria-label="445 open: SMB, see F-06" style="border:0;cursor:pointer">445</button></td>
+              <td><button class="cell o m" data-goto="f-05" aria-label="8080 open: Apache admin panel, see F-05" style="border:0;cursor:pointer">8080</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend" data-reveal>
+        <span><i class="cell o r"></i>Open · high risk</span>
+        <span><i class="cell o m"></i>Open · medium risk</span>
+        <span><i class="cell o"></i>Open · low risk</span>
+        <span><i class="cell f" style="border:1px dashed var(--rule)"></i>Filtered / not listening</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 02 Findings</span>
+        <h2>Eight findings, rated</h2>
+        <p class="measure" style="margin:0;color:var(--ink-2)">Risk combines how severe the weakness is with how easy it is to reach. Open a finding to see the scan evidence and the fix.</p>
+      </div>
+
+      <div class="toolbar" role="group" aria-label="Filter findings by risk" data-reveal>
+        <span class="label">Show</span>
+        <button class="chip" data-filter="all" aria-pressed="true">All <span class="c">8</span></button>
+        <button class="chip" data-filter="high" aria-pressed="false">High <span class="c">2</span></button>
+        <button class="chip" data-filter="medium" aria-pressed="false">Medium <span class="c">4</span></button>
+        <button class="chip" data-filter="low" aria-pressed="false">Low <span class="c">2</span></button>
+      </div>
+
+      <ul class="findings" data-stagger>
+        <li class="finding" id="f-01" data-sev="high">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-01-body">
+            <span class="fid">F-01</span>
+            <span><span class="ftitle">Backdoored FTP server: vsftpd 2.3.4</span><span class="where">127.0.10.20 · 21/tcp</span></span>
+            <span class="sev sev-high">High</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-01-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>Version 2.3.4 of vsftpd is infamous. The official download was tampered with in 2011 to include a backdoor (<strong>CVE-2011-2523</strong>): a username ending in <code>:)</code> opens a root shell on port 6200. Public exploit modules exist. FTP also sends credentials in clear text.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Remove vsftpd 2.3.4 immediately and rebuild the host if it was ever exposed.</li><li>Replace FTP with SFTP over SSH.</li><li>If FTP is unavoidable, run a current, verified vsftpd build with FTPS, and block port 6200.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>21/tcp   open  ftp     vsftpd 2.3.4</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-02" data-sev="high">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-02-body">
+            <span class="fid">F-02</span>
+            <span><span class="ftitle">Telnet remote login in clear text</span><span class="where">127.0.10.20 · 23/tcp</span></span>
+            <span class="sev sev-high">High</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-02-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>Telnet gives a remote shell with no encryption. Anyone who can see the traffic can read usernames, passwords and the whole session. Telnet is also a favourite target for automated brute-force bots.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Disable and uninstall the telnet daemon.</li><li>Use SSH with key-based authentication for remote administration.</li><li>Block 23/tcp at the host and network firewall.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>23/tcp   open  telnet  Linux telnetd</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-03" data-sev="medium">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-03-body">
+            <span class="fid">F-03</span>
+            <span><span class="ftitle">Outdated SSH server: OpenSSH 7.4</span><span class="where">127.0.10.10 · 22/tcp</span></span>
+            <span class="sev sev-medium">Medium</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-03-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>OpenSSH 7.4 dates from December 2016 and has several known vulnerabilities, including <strong>CVE-2018-15473</strong> (an attacker can tell which usernames exist). The exact version is visible to anyone who connects.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Update OpenSSH to the current release from the OS vendor.</li><li>Disable password and root login; use keys only.</li><li>Limit SSH to an admin subnet and add fail2ban or rate limiting.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>22/tcp   open  ssh     OpenSSH 7.4 (protocol 2.0)</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-04" data-sev="medium">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-04-body">
+            <span class="fid">F-04</span>
+            <span><span class="ftitle">Outdated Apache 2.4.29 announcing its version, without HTTPS</span><span class="where">127.0.10.10 · 80/tcp &nbsp;·&nbsp; 127.0.10.30 · 8080/tcp</span></span>
+            <span class="sev sev-medium">Medium</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-04-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>Apache 2.4.29 was released in 2017 and is affected by many published CVEs, including <strong>CVE-2019-0211</strong> (local privilege escalation to root). The <code>Server</code> header gives the exact version and OS, so an attacker can look up exploits instantly. The site is served over plain HTTP.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Upgrade Apache to the current 2.4.x release.</li><li>Set <code>ServerTokens Prod</code> and <code>ServerSignature Off</code> to hide version details.</li><li>Serve over HTTPS (TLS 1.2+), redirect HTTP to HTTPS and add HSTS.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>80/tcp   open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Lab Server</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-05" data-sev="medium">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-05-body">
+            <span class="fid">F-05</span>
+            <span><span class="ftitle">Admin web panel reachable on an alternate port</span><span class="where">127.0.10.30 · 8080/tcp</span></span>
+            <span class="sev sev-medium">Medium</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-05-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>A management interface runs on 8080 of the admin workstation with the same outdated Apache. Nmap's <code>http-open-proxy</code> script also flagged that the server might relay requests. If confirmed, an open proxy could be abused to reach internal systems. Moving a service to a non-standard port does not hide it.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Bind the panel to localhost or an admin VLAN only, or put it behind a VPN.</li><li>Require strong authentication (MFA) for the panel.</li><li>Disable proxy modules (<code>mod_proxy</code>) unless they are needed, and re-test with <code>--script http-open-proxy</code>.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>8080/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-open-proxy: Proxy might be redirecting requests</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-06" data-sev="medium">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-06-body">
+            <span class="fid">F-06</span>
+            <span><span class="ftitle">Windows SMB and RPC listening on every interface</span><span class="where">All hosts · 135/tcp, 445/tcp (Windows lab host)</span></span>
+            <span class="sev sev-medium">Medium</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-06-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>Ports 135 (RPC) and 445 (SMB) appeared on every lab address because the Windows host running the lab binds them to all interfaces. SMB has a long history of serious worms (for example EternalBlue / MS17-010). <strong>Good news:</strong> SMB2 message signing is <em>enabled and required</em>, which blocks relay attacks.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Block 135, 139 and 445 inbound in Windows Defender Firewall on public and untrusted profiles.</li><li>Turn off file sharing where it isn't needed; make sure SMBv1 is disabled.</li><li>Keep signing required, and keep Windows fully patched.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>135/tcp  open  msrpc         Microsoft Windows RPC
+445/tcp  open  microsoft-ds?
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled and required</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-07" data-sev="low">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-07-body">
+            <span class="fid">F-07</span>
+            <span><span class="ftitle">SMTP banner reveals internal hostname</span><span class="where">127.0.10.20 · 25/tcp</span></span>
+            <span class="sev sev-low">Low</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-07-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>The Postfix banner announces the internal hostname <code>mail.lab.local</code>, which helps an attacker map the network. Open-relay behaviour was <em>not</em> tested in this scope.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Set a generic <code>smtpd_banner</code>.</li><li>Confirm the server is not an open relay (<code>nmap --script smtp-open-relay</code>).</li><li>Require STARTTLS and authentication for submission.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>25/tcp   open  smtp    Postfix smtpd
+Service Info: Host:  mail.lab.local</pre></div>
+          </div></div></div>
+        </li>
+
+        <li class="finding" id="f-08" data-sev="low">
+          <button class="finding-btn" aria-expanded="false" aria-controls="f-08-body">
+            <span class="fid">F-08</span>
+            <span><span class="ftitle">SSH on the workstation: current, but discloses OS</span><span class="where">127.0.10.30 · 22/tcp</span></span>
+            <span class="sev sev-low">Low</span><span class="plus" aria-hidden="true"></span>
+          </button>
+          <div class="finding-body" id="f-08-body"><div><div class="finding-inner">
+            <div><h4>Issue</h4><p>OpenSSH 8.9p1 is a supported Ubuntu 22.04 build, a much better state than F-03. The banner still reveals the exact distribution and patch level, and a workstation rarely needs to accept inbound SSH at all.</p></div>
+            <div><h4>Recommendation</h4><ul><li>Disable inbound SSH on workstations unless it is needed.</li><li>Otherwise use keys only, apply security updates and restrict source addresses.</li></ul></div>
+            <div class="evidence"><h4>Evidence</h4><pre>22/tcp   open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.1 (Ubuntu Linux; protocol 2.0)</pre></div>
+          </div></div></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="wrap split">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 03 Conclusion</span>
+        <h2>Summary</h2>
+      </div>
+      <div class="measure" data-reveal>
+        <p style="margin-top:0">Nmap identified <strong>3 active hosts</strong> and <strong>13 open TCP ports</strong> running seven types of service. Two exposures are high risk and should be removed now: the backdoored <strong>vsftpd 2.3.4</strong> and clear-text <strong>Telnet</strong>. Most of the remaining risk comes from outdated software announcing its version, and management services reachable from anywhere.</p>
+        <p>Three habits would close almost all of it: <strong>run only the services you need</strong>, <strong>keep what remains patched and quiet about its version</strong>, and <strong>firewall management ports to an admin network</strong>. After fixing, re-run the same scans to confirm.</p>
+        <p style="color:var(--ink-2)"><strong>Limitations:</strong> the lab services are lightweight emulations that reproduce real banners and HTTP responses, so the findings show what Nmap <em>reports</em>, not confirmed exploitability. No exploitation was attempted, in line with the project scope.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <span class="idx">§ 04 Evidence</span>
+        <h2>Report &amp; raw scan files</h2>
+      </div>
+      <div class="files" data-stagger>
+        <a class="file" href="Network_Scanning_Report.pdf" download>Network_Scanning_Report <span class="ext">.pdf</span></a>
+        <a class="file" href="scans/01_host_discovery.txt">01_host_discovery <span class="ext">.txt</span></a>
+        <a class="file" href="scans/02_port_scan.txt">02_port_scan <span class="ext">.txt</span></a>
+        <a class="file" href="scans/02_port_scan.xml">02_port_scan <span class="ext">.xml</span></a>
+        <a class="file" href="scans/03_service_detection.txt">03_service_detection <span class="ext">.txt</span></a>
+        <a class="file" href="scans/03_service_detection.xml">03_service_detection <span class="ext">.xml</span></a>
+        <a class="file" data-repo="" href="#">Full repository <span class="ext">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <a class="next-page" href="index.html">
+      <span><span class="k">Back to start · 01</span><br><span class="big">Overview</span></span>
+      <span class="arrow" aria-hidden="true">↺</span>
+    </a>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Asante Mbaya · 23311351002 · 351 CP 81</span>
+    <span>Source code, raw scans &amp; documentation: <a data-repo="" href="#">GitHub repository</a></span>
+  </div>
+</footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

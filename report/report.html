@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Network Scanning Report – Asante Mbaya</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+  :root { --ink: #1c2633; --ink2: #4a5566; --rule: #d9d4c8; --signal: #c2412b; --amber: #a86a0b; --calm: #2f6a9a; --paper2: #f4f1ea; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 10.5pt/1.55 "Atkinson Hyperlegible", "Segoe UI", sans-serif; color: var(--ink); }
+  h1, h2, h3 { font-family: "Archivo", sans-serif; font-stretch: 115%; line-height: 1.1; margin: 0; }
+  h2 { font-size: 15pt; margin: 22pt 0 8pt; padding-bottom: 4pt; border-bottom: 1.5pt solid var(--ink); break-after: avoid; }
+  h2 .n { color: var(--signal); margin-right: 8pt; }
+  h3 { font-size: 11.5pt; margin: 12pt 0 4pt; break-after: avoid; }
+  p { margin: 0 0 7pt; }
+  code { font: 8.8pt "JetBrains Mono", Consolas, monospace; background: var(--paper2); padding: 0 3pt; border-radius: 2pt; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9.2pt; break-inside: auto; }
+  tr { break-inside: avoid; }
+  th, td { text-align: left; padding: 5pt 6pt; border-bottom: .6pt solid var(--rule); vertical-align: top; }
+  th { background: var(--paper2); font-weight: 700; }
+  td code { white-space: nowrap; }
+  ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+  li { margin-bottom: 3pt; }
+  .sev { font: 700 7.8pt "JetBrains Mono", monospace; text-transform: uppercase; padding: 1.5pt 5pt; border-radius: 8pt; white-space: nowrap; }
+  .high { background: #f8e1dc; color: var(--signal); }
+  .med { background: #f6ead2; color: var(--amber); }
+  .low { background: #dfe9f2; color: var(--calm); }
+  .hot { color: var(--signal); font-weight: 700; }
+
+  /* cover */
+  .cover { height: 257mm; display: flex; flex-direction: column; break-after: page; }
+  .cover .top { font: 600 9pt "JetBrains Mono", monospace; color: var(--ink2); letter-spacing: .03em; }
+  .cover .top b { color: var(--signal); }
+  .cover h1 { font-size: 34pt; font-weight: 800; margin: 60mm 0 6mm; letter-spacing: -.01em; }
+  .cover h1 em { font-style: normal; color: var(--signal); }
+  .cover .sub { font-size: 13pt; color: var(--ink2); max-width: 130mm; }
+  .cover dl { margin: auto 0 0; display: grid; grid-template-columns: 34mm 1fr; gap: 5pt 10pt; font-size: 10pt; border-top: 1.5pt solid var(--ink); padding-top: 10pt; }
+  .cover dt { color: var(--ink2); font-family: "JetBrains Mono", monospace; font-size: 8.8pt; }
+  .cover dd { margin: 0; font-weight: 700; }
+
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1pt solid var(--ink); margin: 8pt 0 12pt; }
+  .summary div { padding: 8pt 8pt 8pt 0; }
+  .summary div + div { padding-left: 8pt; border-left: .6pt solid var(--rule); }
+  .summary b { display: block; font: 800 20pt/1 "Archivo", sans-serif; font-stretch: 120%; }
+  .summary span { font-size: 8.5pt; color: var(--ink2); }
+  pre { font: 8.4pt/1.45 "JetBrains Mono", Consolas, monospace; background: #1f2732; color: #e8e4da; padding: 8pt 10pt; border-radius: 4pt; white-space: pre-wrap; break-inside: avoid; margin: 4pt 0 10pt; }
+  .finding { break-inside: avoid; border: .6pt solid var(--rule); border-radius: 4pt; padding: 8pt 10pt; margin-bottom: 8pt; }
+  .finding .head { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
+  .finding .where { font: 8.5pt "JetBrains Mono", monospace; color: var(--ink2); margin: 2pt 0 5pt; }
+  .finding p, .finding ul { margin-bottom: 4pt; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top"><b>351 CP 81</b> · COMPREHENSION 2ND REVIEW · PROJECT 02</div>
+  <h1>Network Scanning<br>&amp; Service <em>Identification</em></h1>
+  <p class="sub">A network scanning report on an isolated laboratory network: active hosts, open ports, running services and security recommendations.</p>
+  <dl>
+    <dt>Student</dt><dd>Asante Mbaya</dd>
+    <dt>Reg. No.</dt><dd>23311351002</dd>
+    <dt>Course</dt><dd>351 CP 81</dd>
+    <dt>Tool</dt><dd>Nmap 7.80 (Windows 11)</dd>
+    <dt>Target</dt><dd>Isolated lab network 127.0.10.0/24 (loopback)</dd>
+    <dt>Scan date</dt><dd>18 November 2026</dd>
+  </dl>
+</section>
+
+<h2><span class="n">1</span>Executive summary</h2>
+<p>An isolated lab network of three hosts was scanned with Nmap to find active hosts, open ports and the services running on them. The scan found <b>3 active hosts</b> and <b>13 open TCP ports</b> running seven types of service. Eight findings were raised. Two are <span class="hot">high risk</span> and should be fixed straight away: a backdoored FTP server (vsftpd 2.3.4) and clear-text Telnet remote login.</p>
+<div class="summary">
+  <div><b>3</b><span>Active hosts</span></div>
+  <div><b>13</b><span>Open TCP ports</span></div>
+  <div><b>7</b><span>Service types</span></div>
+  <div><b style="color:var(--signal)">2</b><span>High-risk findings</span></div>
+</div>
+
+<h2><span class="n">2</span>Objective and scope</h2>
+<p><b>Objective:</b> use Nmap to scan an isolated laboratory network and identify active hosts, open ports and running services, then report the services found with security recommendations.</p>
+<p><b>Scope:</b> TCP scanning of 127.0.10.1–50 only. Exploitation of the services found and UDP scanning were outside the scope.</p>
+
+<h2><span class="n">3</span>Lab environment</h2>
+<p>A Python script (<code>lab/lab_services.py</code>) creates the lab by binding services to three addresses in the loopback range. Loopback traffic never leaves the computer, so the lab is fully isolated from any real network.</p>
+<table>
+  <tr><th>Host</th><th>Role</th><th>Services configured</th></tr>
+  <tr><td><code>127.0.10.10</code></td><td>Web server</td><td>SSH (OpenSSH 7.4), HTTP (Apache 2.4.29)</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>Legacy file &amp; mail server</td><td>FTP (vsftpd 2.3.4), Telnet, SMTP (Postfix)</td></tr>
+  <tr><td><code>127.0.10.30</code></td><td>Admin workstation</td><td>SSH (OpenSSH 8.9p1), HTTP admin panel on 8080 (Apache 2.4.29)</td></tr>
+</table>
+<p>Each service answers with the banner the real software sends, and the web servers answer real HTTP requests. Nmap identifies them from these replies exactly as it would a production server. The scans, traffic and results are real; the software versions are emulated.</p>
+
+<h2><span class="n">4</span>Methodology</h2>
+<table>
+  <tr><th style="width:24%">Phase</th><th>Command</th></tr>
+  <tr><td>1. Host discovery</td><td><code>nmap -sT -Pn -p 21-25,80,8080 --open 127.0.10.1-50</code></td></tr>
+  <tr><td>2. Port scan</td><td><code>nmap -sT -Pn -T5 -p 1-1024,3306,8080 127.0.10.10,20,30</code></td></tr>
+  <tr><td>3. Service &amp; version detection</td><td><code>nmap -sT -Pn -sV -sC -p 21,22,23,25,80,135,445,8080 127.0.10.10,20,30</code></td></tr>
+</table>
+<table>
+  <tr><th style="width:18%">Flag</th><th>Meaning</th></tr>
+  <tr><td><code>-sT</code></td><td>TCP connect scan: completes the handshake, needs no raw-packet privileges</td></tr>
+  <tr><td><code>-Pn</code></td><td>Skip ping discovery and treat targets as up (every loopback address answers pings)</td></tr>
+  <tr><td><code>--open</code></td><td>Show only open ports, so a host counts as live only if it runs a service</td></tr>
+  <tr><td><code>-T5</code></td><td>Fastest timing template, safe on a local link</td></tr>
+  <tr><td><code>-sV</code> / <code>-sC</code></td><td>Service version detection / default NSE scripts</td></tr>
+  <tr><td><code>-oN</code> / <code>-oX</code></td><td>Save normal and XML output as evidence</td></tr>
+</table>
+<p><b>Observations:</b> closed ports show as <i>filtered</i> because Windows drops, rather than resets, connections to unused loopback ports. The quick discovery sweep missed ports 21 and 8080, which the full port scan found. This shows why one quick scan is not enough.</p>
+
+<h2><span class="n">5</span>Results</h2>
+<h3>5.1 Active hosts</h3>
+<p>Three live hosts were identified: <code>127.0.10.10</code>, <code>127.0.10.20</code> and <code>127.0.10.30</code>.</p>
+<h3>5.2 Open ports and identified services</h3>
+<table>
+  <tr><th>Host</th><th>Port</th><th>Service</th><th>Version detected</th></tr>
+  <tr><td><code>127.0.10.10</code></td><td>22/tcp</td><td>ssh</td><td>OpenSSH 7.4 (protocol 2.0)</td></tr>
+  <tr><td><code>127.0.10.10</code></td><td>80/tcp</td><td>http</td><td>Apache httpd 2.4.29 (Ubuntu)</td></tr>
+  <tr><td><code>127.0.10.10</code></td><td>135/tcp</td><td>msrpc</td><td>Microsoft Windows RPC</td></tr>
+  <tr><td><code>127.0.10.10</code></td><td>445/tcp</td><td>microsoft-ds</td><td>SMB2, message signing required</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>21/tcp</td><td>ftp</td><td class="hot">vsftpd 2.3.4</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>23/tcp</td><td>telnet</td><td class="hot">Linux telnetd</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>25/tcp</td><td>smtp</td><td>Postfix smtpd (host mail.lab.local)</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>135/tcp</td><td>msrpc</td><td>Microsoft Windows RPC</td></tr>
+  <tr><td><code>127.0.10.20</code></td><td>445/tcp</td><td>microsoft-ds</td><td>SMB2, message signing required</td></tr>
+  <tr><td><code>127.0.10.30</code></td><td>22/tcp</td><td>ssh</td><td>OpenSSH 8.9p1 Ubuntu 3ubuntu0.1</td></tr>
+  <tr><td><code>127.0.10.30</code></td><td>135/tcp</td><td>msrpc</td><td>Microsoft Windows RPC</td></tr>
+  <tr><td><code>127.0.10.30</code></td><td>445/tcp</td><td>microsoft-ds</td><td>SMB2, message signing required</td></tr>
+  <tr><td><code>127.0.10.30</code></td><td>8080/tcp</td><td>http</td><td>Apache httpd 2.4.29 (Ubuntu), possible open proxy</td></tr>
+</table>
+<p>Ports 135 and 445 belong to the Windows host running the lab. Windows binds them to all interfaces, so they appear on every lab address.</p>
+<h3>5.3 Service detection output (excerpt)</h3>
+<pre>127.0.10.20
+21/tcp   open  ftp     vsftpd 2.3.4
+23/tcp   open  telnet  Linux telnetd
+25/tcp   open  smtp    Postfix smtpd
+Service Info: Host: mail.lab.local
+
+127.0.10.10
+80/tcp   open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+445/tcp  open  microsoft-ds?
+| smb2-security-mode: 2.02: Message signing enabled and required</pre>
+
+<h2><span class="n">6</span>Findings and risk ratings</h2>
+<p>Risk combines how severe the weakness is with how easily it can be reached.</p>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-01 · Backdoored FTP server (vsftpd 2.3.4)</h3><span class="sev high">High</span></div>
+<div class="where">127.0.10.20 · 21/tcp</div>
+<p>This vsftpd release was tampered with in 2011 to include a backdoor (CVE-2011-2523). A username ending in <code>:)</code> opens a root shell on port 6200, and public exploits exist. FTP also sends credentials in clear text.</p>
+<p><b>Recommendation:</b> remove it, rebuild the host if it was ever exposed, and replace FTP with SFTP. If FTP must stay, use a current, verified build with FTPS and block port 6200.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-02 · Telnet remote login in clear text</h3><span class="sev high">High</span></div>
+<div class="where">127.0.10.20 · 23/tcp</div>
+<p>Telnet has no encryption: usernames, passwords and whole sessions can be read by anyone who can see the traffic. It is also a common target for brute-force bots.</p>
+<p><b>Recommendation:</b> disable and uninstall telnetd, use SSH with key-based authentication, and block 23/tcp.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-03 · Outdated SSH server (OpenSSH 7.4)</h3><span class="sev med">Medium</span></div>
+<div class="where">127.0.10.10 · 22/tcp</div>
+<p>Released in 2016, with known vulnerabilities including CVE-2018-15473 (username enumeration). The version is visible to anyone who connects.</p>
+<p><b>Recommendation:</b> update OpenSSH, disable password and root login, restrict SSH to an admin subnet, and add rate limiting or fail2ban.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-04 · Outdated Apache 2.4.29, version disclosed, no HTTPS</h3><span class="sev med">Medium</span></div>
+<div class="where">127.0.10.10 · 80/tcp and 127.0.10.30 · 8080/tcp</div>
+<p>Apache 2.4.29 (2017) is affected by many published CVEs, including CVE-2019-0211 (privilege escalation). The <code>Server</code> header reveals the exact version and OS, and the site is served over plain HTTP.</p>
+<p><b>Recommendation:</b> upgrade Apache, set <code>ServerTokens Prod</code> and <code>ServerSignature Off</code>, and serve over HTTPS (TLS 1.2+) with an HTTP→HTTPS redirect and HSTS.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-05 · Admin web panel reachable on port 8080</h3><span class="sev med">Medium</span></div>
+<div class="where">127.0.10.30 · 8080/tcp</div>
+<p>A management interface is reachable on the admin workstation, and Nmap's <code>http-open-proxy</code> script reported that it "might be redirecting requests". An open proxy could be abused to reach internal systems.</p>
+<p><b>Recommendation:</b> bind the panel to localhost, an admin VLAN or a VPN; require MFA; disable <code>mod_proxy</code> unless it is needed, then re-test.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-06 · SMB and RPC listening on all interfaces</h3><span class="sev med">Medium</span></div>
+<div class="where">All hosts · 135/tcp, 445/tcp (Windows lab host)</div>
+<p>SMB has a history of serious worms (for example EternalBlue / MS17-010). On the positive side, SMB2 message signing is enabled and required, which prevents relay attacks.</p>
+<p><b>Recommendation:</b> block 135, 139 and 445 inbound on untrusted firewall profiles, disable file sharing where it isn't needed, make sure SMBv1 is off, and keep Windows patched.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-07 · SMTP banner reveals internal hostname</h3><span class="sev low">Low</span></div>
+<div class="where">127.0.10.20 · 25/tcp</div>
+<p>The Postfix banner discloses <code>mail.lab.local</code>, which helps an attacker map the network. Open-relay behaviour was not tested.</p>
+<p><b>Recommendation:</b> set a generic <code>smtpd_banner</code>, test for an open relay with <code>--script smtp-open-relay</code>, and require STARTTLS and authentication.</p></div>
+
+<div class="finding"><div class="head"><h3 style="margin:0">F-08 · Workstation SSH discloses OS version</h3><span class="sev low">Low</span></div>
+<div class="where">127.0.10.30 · 22/tcp</div>
+<p>OpenSSH 8.9p1 is a supported build, but the banner reveals the exact distribution and patch level, and a workstation rarely needs inbound SSH.</p>
+<p><b>Recommendation:</b> disable inbound SSH on workstations unless it is needed; otherwise use keys only and restrict source addresses.</p></div>
+
+<h3>Risk summary</h3>
+<table>
+  <tr><th>ID</th><th>Finding</th><th>Location</th><th>Risk</th></tr>
+  <tr><td>F-01</td><td>Backdoored vsftpd 2.3.4</td><td>127.0.10.20:21</td><td><span class="sev high">High</span></td></tr>
+  <tr><td>F-02</td><td>Clear-text Telnet</td><td>127.0.10.20:23</td><td><span class="sev high">High</span></td></tr>
+  <tr><td>F-03</td><td>Outdated OpenSSH 7.4</td><td>127.0.10.10:22</td><td><span class="sev med">Medium</span></td></tr>
+  <tr><td>F-04</td><td>Outdated Apache, version disclosure, no HTTPS</td><td>:80, :8080</td><td><span class="sev med">Medium</span></td></tr>
+  <tr><td>F-05</td><td>Exposed admin panel / possible open proxy</td><td>127.0.10.30:8080</td><td><span class="sev med">Medium</span></td></tr>
+  <tr><td>F-06</td><td>SMB/RPC on all interfaces</td><td>all hosts :135, :445</td><td><span class="sev med">Medium</span></td></tr>
+  <tr><td>F-07</td><td>SMTP hostname disclosure</td><td>127.0.10.20:25</td><td><span class="sev low">Low</span></td></tr>
+  <tr><td>F-08</td><td>Workstation SSH OS disclosure</td><td>127.0.10.30:22</td><td><span class="sev low">Low</span></td></tr>
+</table>
+
+<h2><span class="n">7</span>Security recommendations</h2>
+<ol>
+  <li><b>Remove vsftpd 2.3.4</b> and replace FTP with SFTP. <i>(F-01)</i></li>
+  <li><b>Disable Telnet</b>; use SSH with key-based authentication. <i>(F-02)</i></li>
+  <li><b>Patch OpenSSH and Apache</b> to current releases; disable SSH password and root login. <i>(F-03, F-04)</i></li>
+  <li><b>Hide version banners</b> in Apache and Postfix. <i>(F-04, F-07)</i></li>
+  <li><b>Use HTTPS everywhere</b>, with TLS 1.2+, redirects and HSTS. <i>(F-04)</i></li>
+  <li><b>Restrict management services</b> (admin panel, SSH, SMB, RPC) to an admin network or VPN with the firewall. <i>(F-05, F-06, F-08)</i></li>
+  <li><b>Keep SMB signing required</b>, disable SMBv1, and keep Windows patched. <i>(F-06)</i></li>
+  <li><b>Re-scan after fixing</b> with the same commands to confirm the exposures are closed.</li>
+</ol>
+
+<h2><span class="n">8</span>Limitations</h2>
+<ul>
+  <li>The lab services are lightweight emulations that reproduce real banners and HTTP responses, so the findings show what Nmap reports, not confirmed exploitability.</li>
+  <li>No exploitation was attempted, in line with the project scope.</li>
+  <li>Only TCP was scanned; UDP services were out of scope.</li>
+</ul>
+
+<h2><span class="n">9</span>Conclusion</h2>
+<p>Nmap found 3 active hosts and 13 open TCP ports running seven types of service on the isolated lab network. The two most serious exposures, the backdoored vsftpd 2.3.4 and clear-text Telnet, should be removed straight away. Most of the remaining risk comes from outdated software that announces its version and from management services reachable from anywhere. Running only the services you need, patching and hiding versions, and firewalling management ports would close nearly all of it. The raw Nmap output for every phase is in the <code>scans/</code> folder of the project repository.</p>
+
+</body>
+</html>
